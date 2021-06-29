@@ -277,196 +277,196 @@ var data = d3.csv(path_estabelecimentos).then(function(data){
 	});
 
 
-	//Q11
-	let dim_date_start = facts.dimension(d=>d.date_start_month);
-	let _group = dim_date_start.group().reduceSum(function(d){return 1});
-	var group_date_start = {
-		all:function () {
-			var cumulate = 0;
-			var g = [];
-			_group.all().forEach(function(d,i) {
-				cumulate += d.value;
-				g.push({key:d.key,value:cumulate,'in_day':d.value})
-			});
-			return g;
-		}
-	};
-	let hourScale = d3.scaleTime().domain(d3.extent(data,d=> d.date_start_month))
+	// //Q11
+	// let dim_date_start = facts.dimension(d=>d.date_start_month);
+	// let _group = dim_date_start.group().reduceSum(function(d){return 1});
+	// var group_date_start = {
+	// 	all:function () {
+	// 		var cumulate = 0;
+	// 		var g = [];
+	// 		_group.all().forEach(function(d,i) {
+	// 			cumulate += d.value;
+	// 			g.push({key:d.key,value:cumulate,'in_day':d.value})
+	// 		});
+	// 		return g;
+	// 	}
+	// };
+	// let hourScale = d3.scaleTime().domain(d3.extent(data,d=> d.date_start_month))
 
-	lineChartQ11.width(colw)
-            .height(colh/2)
- 				.margins({left: 50, top: 5, right: 5, bottom: 30})
-            .dimension(dim_date_start)
-            .group(group_date_start)
-            .x(hourScale)
-            .renderArea(true)
-            .yAxisLabel("Qtd. de estabelecimentos")
-	        .xAxisLabel("Ano de início das atividades")
-	        .clipPadding(10)
-	        .elasticY(true)
-	        .title(function(d) { return 'Mês: ' + d.key.toLocaleDateString().substr(3)+'\nAcumulado: '+ d.value+'\nNo mês: '+d.in_day; })
-            .brushOn(false)
-            .mouseZoomable(true)
-            .on("filtered", function(chart,filter){
-			        createMap()
-			});
+	// lineChartQ11.width(colw)
+    //         .height(colh/2)
+ 	// 			.margins({left: 50, top: 5, right: 5, bottom: 30})
+    //         .dimension(dim_date_start)
+    //         .group(group_date_start)
+    //         .x(hourScale)
+    //         .renderArea(true)
+    //         .yAxisLabel("Qtd. de estabelecimentos")
+	//         .xAxisLabel("Ano de início das atividades")
+	//         .clipPadding(10)
+	//         .elasticY(true)
+	//         .title(function(d) { return 'Mês: ' + d.key.toLocaleDateString().substr(3)+'\nAcumulado: '+ d.value+'\nNo mês: '+d.in_day; })
+    //         .brushOn(false)
+    //         .mouseZoomable(true)
+    //         .on("filtered", function(chart,filter){
+	// 		        createMap()
+	// 		});
 
-			// console.log(lineChartQ11);
+	// 		// console.log(lineChartQ11);
 
-    let dim_date_start_filter = facts.dimension(d=>d.date_start_month);
-    let group_date_start_filter = dim_date_start.group();
-	lineChartQ11Filter.width(colw/2)
-            .height(colh/3)
- 				// .margins({left: 40, top: 20, right: 10, bottom: 40})
-            .dimension(dim_date_start_filter)
-            .group(group_date_start_filter)
-            .x(hourScale)
-            .renderArea(true)
-            // .yAxisLabel("Qtd. de estabelecimentos")
-	        .xAxisLabel("Ano de início das atividades")
-	        .clipPadding(10)
-	        // .elasticY(true)
-	        // .title(function(d) { return 'Mês: ' + d.key.toLocaleDateString().substr(3)+'\nAcumulado: '+ d.value+'\nNo mês: '+d.in_day; })
-            .brushOn(true)
-            .mouseZoomable(false)
-            .on("filtered", function(chart,filter){
-			        createMap()
-			})
-			.xAxis().ticks(5);
-			lineChartQ11Filter.yAxis().ticks(0);
-
-
+    // let dim_date_start_filter = facts.dimension(d=>d.date_start_month);
+    // let group_date_start_filter = dim_date_start.group();
+	// lineChartQ11Filter.width(colw/2)
+    //         .height(colh/3)
+ 	// 			// .margins({left: 40, top: 20, right: 10, bottom: 40})
+    //         .dimension(dim_date_start_filter)
+    //         .group(group_date_start_filter)
+    //         .x(hourScale)
+    //         .renderArea(true)
+    //         // .yAxisLabel("Qtd. de estabelecimentos")
+	//         .xAxisLabel("Ano de início das atividades")
+	//         .clipPadding(10)
+	//         // .elasticY(true)
+	//         // .title(function(d) { return 'Mês: ' + d.key.toLocaleDateString().substr(3)+'\nAcumulado: '+ d.value+'\nNo mês: '+d.in_day; })
+    //         .brushOn(true)
+    //         .mouseZoomable(false)
+    //         .on("filtered", function(chart,filter){
+	// 		        createMap()
+	// 		})
+	// 		.xAxis().ticks(5);
+	// 		lineChartQ11Filter.yAxis().ticks(0);
 
 
 
-    //Q3
-    let dim_porte = facts.dimension(function(d){ return d.porte});
-    let situacoes = ["Ativa","Baixada","Inapta","Nula","Suspensa"];
-    barchart.ordering(function(d){
-    	let cont = 0;
-    	for(i in d.value) {
-    		cont+= d.value[i];
-    	}
-    	return -cont;
-    });
 
-    let group_porte_situacao = dim_porte.group().reduce(function(p,v){
-			//Add
-			p[v.situation] = (p[v.situation] || 0) + 1;
-			return p;
-		},function(p,v){
-			//Remove
-			p[v.situation] = (p[v.situation] || 0) - 1;
-			return p;
-		},function(p,v){
-			//Init
-			return {};
-		});
+
+    // //Q3
+    // let dim_porte = facts.dimension(function(d){ return d.porte});
+    // let situacoes = ["Ativa","Baixada","Inapta","Nula","Suspensa"];
+    // barchart.ordering(function(d){
+    // 	let cont = 0;
+    // 	for(i in d.value) {
+    // 		cont+= d.value[i];
+    // 	}
+    // 	return -cont;
+    // });
+
+    // let group_porte_situacao = dim_porte.group().reduce(function(p,v){
+	// 		//Add
+	// 		p[v.situation] = (p[v.situation] || 0) + 1;
+	// 		return p;
+	// 	},function(p,v){
+	// 		//Remove
+	// 		p[v.situation] = (p[v.situation] || 0) - 1;
+	// 		return p;
+	// 	},function(p,v){
+	// 		//Init
+	// 		return {};
+	// 	});
 		
-		function sel_stack(i) {
-              return function(d) {
-                	return d.value[i];
-              };
-          	}
+	// 	function sel_stack(i) {
+    //           return function(d) {
+    //             	return d.value[i];
+    //           };
+    //       	}
 
-    let colorScale = d3.scaleOrdinal()
-                 .domain(["Ativa","Baixada","Inapta","Nula","Suspensa"])
-                 .range(["#8dd3c7", "#fb8072", "#e0e004","#80b1d3","#bebada"])
+    // let colorScale = d3.scaleOrdinal()
+    //              .domain(["Ativa","Baixada","Inapta","Nula","Suspensa"])
+    //              .range(["#8dd3c7", "#fb8072", "#e0e004","#80b1d3","#bebada"])
 
    
  
-    barchart.width(colw)
-                .height(colh)
-                .x(d3.scaleLinear().domain([1, 21]))
-                .margins({left: 80, top: 20, right: 10, bottom: 40})
-                .brushOn(false)
-                .clipPadding(20)
-                .gap(40)
-                .yAxisLabel("Qtd. de estabelecimentos")
-	        	.xAxisLabel("Porte")
-	        	.elasticY(true)
-                .title(function (d) {
-                	let total = 0
-                	for (i in d.value){
-                		total += d.value[i];
-                	}
-                	let rate = format((d.value[this.layer]/ total) * 100);
-                    return d.key + '[' + this.layer + ']: ' + d.value[this.layer]+"\n"+rate+"%";
-                })
-                .x(d3.scaleBand())
-            	.xUnits(dc.units.ordinal)
-                .dimension(dim_porte)
-                .group(group_porte_situacao, situacoes[0], sel_stack(situacoes[0]))
-                .renderLabel(true)
-                .colors(colorScale)
-                .on("filtered", function(chart,filter){
-			        createMap()
-			    });
+    // barchart.width(colw)
+    //             .height(colh)
+    //             .x(d3.scaleLinear().domain([1, 21]))
+    //             .margins({left: 80, top: 20, right: 10, bottom: 40})
+    //             .brushOn(false)
+    //             .clipPadding(20)
+    //             .gap(40)
+    //             .yAxisLabel("Qtd. de estabelecimentos")
+	//         	.xAxisLabel("Porte")
+	//         	.elasticY(true)
+    //             .title(function (d) {
+    //             	let total = 0
+    //             	for (i in d.value){
+    //             		total += d.value[i];
+    //             	}
+    //             	let rate = format((d.value[this.layer]/ total) * 100);
+    //                 return d.key + '[' + this.layer + ']: ' + d.value[this.layer]+"\n"+rate+"%";
+    //             })
+    //             .x(d3.scaleBand())
+    //         	.xUnits(dc.units.ordinal)
+    //             .dimension(dim_porte)
+    //             .group(group_porte_situacao, situacoes[0], sel_stack(situacoes[0]))
+    //             .renderLabel(true)
+    //             .colors(colorScale)
+    //             .on("filtered", function(chart,filter){
+	// 		        createMap()
+	// 		    });
 
-    barchart.legend(dc.legend());
-    for (var i = 1; i < 5; ++i) {
-                barchart.stack(group_porte_situacao, '' + situacoes[i], sel_stack(situacoes[i]));
-	}
-
-
-    //Datatable
-    let dim_cnpj = facts.dimension(d=>d.cnpj_est);
-    var ofs = 0, pag = 100;
-
-	function update_offset() {
-	  var totFilteredRecs = facts.groupAll().value();
-
-	  var end = ofs + pag > totFilteredRecs ? totFilteredRecs : ofs + pag;
-	  ofs = ofs >= totFilteredRecs ? Math.floor((totFilteredRecs - 1) / pag) * pag : ofs;
-	  ofs = ofs < 0 ? 0 : ofs;
+    // barchart.legend(dc.legend());
+    // for (var i = 1; i < 5; ++i) {
+    //             barchart.stack(group_porte_situacao, '' + situacoes[i], sel_stack(situacoes[i]));
+	// }
 
 
-	  data_table.beginSlice(ofs);
-	  data_table.endSlice(ofs+pag);
-	}
+    // //Datatable
+    // let dim_cnpj = facts.dimension(d=>d.cnpj_est);
+    // var ofs = 0, pag = 100;
 
-	function display() {
-	  var totFilteredRecs = facts.groupAll().value();
-	  var end = ofs + pag > totFilteredRecs ? totFilteredRecs : ofs + pag;
-	  d3.select('#begin')
-	      .text(end === 0? ofs : ofs + 1);
-	  d3.select('#end')
-	      .text(end);
-	  d3.select('#last')
-	      .attr('disabled', ofs-pag<0 ? 'true' : null);
-	  d3.select('#next')
-	      .attr('disabled', ofs+pag>=totFilteredRecs ? 'true' : null);
-	  d3.select('#size').text(totFilteredRecs);
-	  if(totFilteredRecs != facts.size()){
-	    d3.select('#totalsize').text("(filtered Total: " + facts.size() + " )");
-	  }else{
-	    d3.select('#totalsize').text('');
-	  }
+	// function update_offset() {
+	//   var totFilteredRecs = facts.groupAll().value();
 
-	}
+	//   var end = ofs + pag > totFilteredRecs ? totFilteredRecs : ofs + pag;
+	//   ofs = ofs >= totFilteredRecs ? Math.floor((totFilteredRecs - 1) / pag) * pag : ofs;
+	//   ofs = ofs < 0 ? 0 : ofs;
 
-	next=function(){
-		ofs += pag;
-		update_offset();
-		data_table.redraw();
-	}
 
-	last=function(){
-		ofs -= pag;
-		update_offset();
-		data_table.redraw();
-	}
+	//   data_table.beginSlice(ofs);
+	//   data_table.endSlice(ofs+pag);
+	// }
 
-    data_table.width(w)
-            .height(h)
-            .dimension(dim_cnpj)
-            .size(Infinity)
-            .columns([d=>"<a title='Ver rede de sócios' target='_blank' href='rede_socios.html?cnpj="+d.root_cnpj+"'>"+d.root_cnpj+"</a>",d=>d.cnpj_est,d=>d.name,d=>d.porte,d=>d.date_start.toLocaleDateString(),d=>d.situation,d=>d.situationDate.toLocaleDateString(),d=>d.state,d=>d.activity])
-            .sortBy(d=>d.root_cnpj)
-            .order(d3.ascending)
-            .on('preRender', update_offset)
-          	.on('preRedraw', update_offset)
-          	.on('pretransition', display);
+	// function display() {
+	//   var totFilteredRecs = facts.groupAll().value();
+	//   var end = ofs + pag > totFilteredRecs ? totFilteredRecs : ofs + pag;
+	//   d3.select('#begin')
+	//       .text(end === 0? ofs : ofs + 1);
+	//   d3.select('#end')
+	//       .text(end);
+	//   d3.select('#last')
+	//       .attr('disabled', ofs-pag<0 ? 'true' : null);
+	//   d3.select('#next')
+	//       .attr('disabled', ofs+pag>=totFilteredRecs ? 'true' : null);
+	//   d3.select('#size').text(totFilteredRecs);
+	//   if(totFilteredRecs != facts.size()){
+	//     d3.select('#totalsize').text("(filtered Total: " + facts.size() + " )");
+	//   }else{
+	//     d3.select('#totalsize').text('');
+	//   }
+
+	// }
+
+	// next=function(){
+	// 	ofs += pag;
+	// 	update_offset();
+	// 	data_table.redraw();
+	// }
+
+	// last=function(){
+	// 	ofs -= pag;
+	// 	update_offset();
+	// 	data_table.redraw();
+	// }
+
+    // data_table.width(w)
+    //         .height(h)
+    //         .dimension(dim_cnpj)
+    //         .size(Infinity)
+    //         .columns([d=>"<a title='Ver rede de sócios' target='_blank' href='rede_socios.html?cnpj="+d.root_cnpj+"'>"+d.root_cnpj+"</a>",d=>d.cnpj_est,d=>d.name,d=>d.porte,d=>d.date_start.toLocaleDateString(),d=>d.situation,d=>d.situationDate.toLocaleDateString(),d=>d.state,d=>d.activity])
+    //         .sortBy(d=>d.root_cnpj)
+    //         .order(d3.ascending)
+    //         .on('preRender', update_offset)
+    //       	.on('preRedraw', update_offset)
+    //       	.on('pretransition', display);
 
 
 
@@ -474,105 +474,105 @@ var data = d3.csv(path_estabelecimentos).then(function(data){
 
     
            
-    //Gráfico de linha das situações
-	let dim_situation = facts.dimension(d=>[d.situation,d.situationDate_month]);
-	let _group_situation = dim_situation.group();
+    // //Gráfico de linha das situações
+	// let dim_situation = facts.dimension(d=>[d.situation,d.situationDate_month]);
+	// let _group_situation = dim_situation.group();
 	
-	var group_situation = {
-		all:function () {
-			var cumulate = {};
-			var g = [];
-			let parseDate = d3.utcParse("%Y-%m-%d");
-			_group_situation.all().forEach(function(d,i) {
-				if(!(d.key[0] in cumulate))
-					cumulate[d.key[0]] = d.value;
-				else
-					cumulate[d.key[0]] += d.value;
-				g.push({key:[d.key[0],parseDate(d.key[1])],value:cumulate[d.key[0]],'in_day':d.value})
-			});
+	// var group_situation = {
+	// 	all:function () {
+	// 		var cumulate = {};
+	// 		var g = [];
+	// 		let parseDate = d3.utcParse("%Y-%m-%d");
+	// 		_group_situation.all().forEach(function(d,i) {
+	// 			if(!(d.key[0] in cumulate))
+	// 				cumulate[d.key[0]] = d.value;
+	// 			else
+	// 				cumulate[d.key[0]] += d.value;
+	// 			g.push({key:[d.key[0],parseDate(d.key[1])],value:cumulate[d.key[0]],'in_day':d.value})
+	// 		});
 			
 		
-			return g;
-		}
-	};
-	let hourScale_situation = d3.scaleTime().domain(d3.extent(data,function(d){
-		let parseDate = d3.utcParse("%Y-%m-%d");
-		return parseDate(d.situationDate_month)
-	}))
+	// 		return g;
+	// 	}
+	// };
+	// let hourScale_situation = d3.scaleTime().domain(d3.extent(data,function(d){
+	// 	let parseDate = d3.utcParse("%Y-%m-%d");
+	// 	return parseDate(d.situationDate_month)
+	// }))
 
 
 
-	lineChart_situation.width(colw)
-				     .height(colh/2)
-				     .margins({left: 50, top: 5, right: 5, bottom: 30})
-				     .chart(function(c) { return new dc.LineChart(c); })
-				     .x(hourScale_situation)
-				     .brushOn(false)
-				     .yAxisLabel("Qtd. de estabelecimentos")
-				     .xAxisLabel("Data da situação")
-				     .clipPadding(10)
-				     .elasticY(true)
-				     .dimension(dim_situation)
-				     .group(group_situation)
-				     .mouseZoomable(false)
-				     .title(function(d) { return 'Situação: '+d.key[0]+'\nMês: ' + d.key[1].toLocaleDateString().substr(3)+'\nAcumulado: '+ d.value+'\nNo mês: '+d.in_day; })
-				     .seriesAccessor(function(d) { return d.key[0];})
-				     .keyAccessor(function(d) {return d.key[1];})
-				     .valueAccessor(function(d) { return +d.value;})
-				     .colors(colorScale)
-				     .on("filtered", function(chart,filter){
-					    createMap();
-					})
-				     .legend(dc.legend().x(250).y(0).itemHeight(13).gap(5))
-				     .xAxis().ticks(5);
-
-
-
-
+	// lineChart_situation.width(colw)
+	// 			     .height(colh/2)
+	// 			     .margins({left: 50, top: 5, right: 5, bottom: 30})
+	// 			     .chart(function(c) { return new dc.LineChart(c); })
+	// 			     .x(hourScale_situation)
+	// 			     .brushOn(false)
+	// 			     .yAxisLabel("Qtd. de estabelecimentos")
+	// 			     .xAxisLabel("Data da situação")
+	// 			     .clipPadding(10)
+	// 			     .elasticY(true)
+	// 			     .dimension(dim_situation)
+	// 			     .group(group_situation)
+	// 			     .mouseZoomable(false)
+	// 			     .title(function(d) { return 'Situação: '+d.key[0]+'\nMês: ' + d.key[1].toLocaleDateString().substr(3)+'\nAcumulado: '+ d.value+'\nNo mês: '+d.in_day; })
+	// 			     .seriesAccessor(function(d) { return d.key[0];})
+	// 			     .keyAccessor(function(d) {return d.key[1];})
+	// 			     .valueAccessor(function(d) { return +d.value;})
+	// 			     .colors(colorScale)
+	// 			     .on("filtered", function(chart,filter){
+	// 				    createMap();
+	// 				})
+	// 			     .legend(dc.legend().x(250).y(0).itemHeight(13).gap(5))
+	// 			     .xAxis().ticks(5);
 
 
 
 
 
 
-     //Gráfico de Q2
-     let dim_atividades = facts.dimension(d => d.activity);
-     let group_atividades = dim_atividades.group();
-     let scaleAtividades = d3.scaleLinear().domain([0,group_atividades.top(1)[0].value]);
-     rowChartQ2.ordering(function(d){return -d.value});
-
-
-     rowChartQ2.width(window.innerWidth)
-		.height(colh-100)
-		.dimension(dim_atividades)
-		.group(group_atividades)
-		.x(scaleAtividades)
-		// .label(function(d){return d.key;})
-		// .margins({top: 50, right: 50, bottom: 25, left: 40})
-		.elasticX(true)
-		.valueAccessor(function(d) { return +d.value;})
-		.othersGrouper(false)
-		.colors(['#0d6efd'])
-		.cap(10)
-		.on("filtered", function(chart,filter){
-			createMap()
-		});
 
 
 
 
+    //  //Gráfico de Q2
+    //  let dim_atividades = facts.dimension(d => d.activity);
+    //  let group_atividades = dim_atividades.group();
+    //  let scaleAtividades = d3.scaleLinear().domain([0,group_atividades.top(1)[0].value]);
+    //  rowChartQ2.ordering(function(d){return -d.value});
 
-		//Filter situation
-		let dim_situation_filter = facts.dimension(d=>d.situation);
-		selectFilter_situation.dimension(dim_situation_filter)
-				.group(dim_situation_filter.group())
-				.multiple(true)
-				.numberVisible(5)
-				// .mouseZoomable(false)
-				.controlsUseVisibility(true)
-				.on("filtered", function(chart,filter){
-			        createMap()
-				});
+
+    //  rowChartQ2.width(window.innerWidth)
+	// 	.height(colh-100)
+	// 	.dimension(dim_atividades)
+	// 	.group(group_atividades)
+	// 	.x(scaleAtividades)
+	// 	// .label(function(d){return d.key;})
+	// 	// .margins({top: 50, right: 50, bottom: 25, left: 40})
+	// 	.elasticX(true)
+	// 	.valueAccessor(function(d) { return +d.value;})
+	// 	.othersGrouper(false)
+	// 	.colors(['#0d6efd'])
+	// 	.cap(10)
+	// 	.on("filtered", function(chart,filter){
+	// 		createMap()
+	// 	});
+
+
+
+
+
+	// 	//Filter situation
+	// 	let dim_situation_filter = facts.dimension(d=>d.situation);
+	// 	selectFilter_situation.dimension(dim_situation_filter)
+	// 			.group(dim_situation_filter.group())
+	// 			.multiple(true)
+	// 			.numberVisible(5)
+	// 			// .mouseZoomable(false)
+	// 			.controlsUseVisibility(true)
+	// 			.on("filtered", function(chart,filter){
+	// 		        createMap()
+	// 			});
 
   dc.renderAll();
   function AddXAxis(chartToUpdate, displayText){
