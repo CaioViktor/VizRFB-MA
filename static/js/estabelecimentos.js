@@ -1,7 +1,7 @@
 // const  path_estabelecimentos = path_data+"estabelecimentos.csv";
 
 const  path_estabelecimentos = path_data+"estabelecimentos_min.csv";
-const  path_brazil = path_data+"brazil.json";
+const  path_brazil = path_data+"maranhao_pop.json";
 var w = window.innerWidth;
 var h = window.innerHeight;
 var colh = h/2;
@@ -9,15 +9,15 @@ var colw = (33/100) * w;
 let mapa = null;
 let next,last;
 let colorScale_mapa = null;
-let state_name_mapa = new Map();
-let state_population = new Map();
+let city_name_mapa = new Map();
+let city_population = new Map();
 let format = d3.format(".2f");
 let facts = null;
 let brazil = null;
 let dim_states = null;
 let group_states = null;
 let previous_filter = null;
-// let previous_this_map = null;
+let previous_this_map = null;
 let resetar = null;
 
 function clickFilter(el){
@@ -32,19 +32,23 @@ function renderMap(data,maps){
 	const svg = d3.select("#Q1").append("svg");
 
 
-	const scaleValue = (colw*colh)*650/(633.6*474.5);
-	
+	const scaleValue = 4.5 * (colw*colh)*650/(633.6*474.5);
+	// const scaleValue = 291.7808219178083;
+	// const scaleValue = 600;
+
 	
 
 	var projection =  d3.geoMercator()
 					  // .scale(scaleValue)
 					  // .center([center0, center1]);
 					  .scale(scaleValue)
-					  .center([-52, -15])
+					  .center([-45, -5.7])
+					//   .center([0,0])
   					  .translate([colw / 2, colh / 2]);
 
 	path = d3.geoPath().projection(projection);
 
+	// let path = d3.geoPath()
 
 
 	svg.attr("width",colw)
@@ -52,12 +56,12 @@ function renderMap(data,maps){
 	svg.append("g")
 	  .attr("class", "states")
 	.selectAll("path")
-	  .data(topojson.feature(data, data.objects.estados).features)
+	  .data(data.features)
 	.enter().append("path")
-	  .attr("fill", d => colorScale_mapa(maps[1].get(d.id)))
-	  // .attr("fill", "blue")
+	//   .attr("fill", d => colorScale_mapa(maps[1].get(d.id)))
+	  .attr("fill", "blue")
 	  .attr("d", path)
-	  .attr("element_id",d=>d.id)
+	  .attr("element_id",d=>d.properties.id_rfb)
 	  .on("click",function(d){
 	  		d3.select(this) // seleciona o elemento atual
 			    .attr("stroke-width", 3)
@@ -93,8 +97,8 @@ function renderMap(data,maps){
 
 	    d3.select(this)
 	    .style("cursor", "default")
-	    .attr("stroke-width", 0)
-	    .attr("stroke","none"); //volta ao valor padrão
+	    .attr("stroke-width", 1)
+	    .attr("stroke","white"); //volta ao valor padrão
 	    if(previous_filter != null){
 	    	let previous_this_map = $("[element_id="+previous_filter+"]")[0];
 			d3.select(previous_this_map) // seleciona o elemento atual
@@ -105,7 +109,7 @@ function renderMap(data,maps){
 	});
 
 	svg.append("path")
-	  .datum(topojson.mesh(data, data.objects.estados, function(a, b) { return a !== b; }))
+	  .datum(topojson.mesh(data, data.features, function(a, b) { return a !== b; }))
 	  .attr("class", "states")
 	  .attr("d", path)
 	d3.select("#tooltip").remove()
@@ -132,7 +136,7 @@ function update_countStates(group){
 	let states = group.all();
 	states.forEach(function(d){
 		map.set(d.key,+d.value);
-		const population = state_population.get(d.key);
+		const population = city_population.get(d.key);
 		const to_100000 = (d.value * 100000)/population;
 		map_100000.set(d.key,to_100000);
 	});
@@ -177,9 +181,9 @@ function showTooltip(maps,element_id, x, y) {
 	const t = d3.select("#tooltip");
 	
 	t.select("#qtd").text(maps[0].get(element_id));
-	t.select("#pop").text(state_population.get(element_id));
+	t.select("#pop").text(city_population.get(element_id));
 	t.select("#taxa").text(maps[1].get(element_id));
-	t.select("#name_county").text(state_name_mapa.get(element_id));
+	t.select("#name_county").text(city_name_mapa.get(element_id));
 	t.classed("hidden", false);
 	const rect = t.node().getBoundingClientRect();
 	const wi = rect.width;
@@ -233,44 +237,42 @@ var data = d3.csv(path_estabelecimentos).then(function(data){
 		d.situationDate = parseDate(d.situationDate);
 	});
 	
-	let lineChartQ11 = dc.lineChart("#Q11");
-	let data_table = dc.dataTable("#table_estabs");
-	let barchart= dc.barChart("#Q3");
-	let lineChart_situation = dc.seriesChart("#situacoes_linha");
-	let rowChartQ2 = dc.rowChart("#Q2");
-	let selectFilter_situation = dc.selectMenu("#filter_situa");
-	let lineChartQ11Filter = dc.lineChart("#Q11F");
+	// let lineChartQ11 = dc.lineChart("#Q11");
+	// let data_table = dc.dataTable("#table_estabs");
+	// let barchart= dc.barChart("#Q3");
+	// let lineChart_situation = dc.seriesChart("#situacoes_linha");
+	// let rowChartQ2 = dc.rowChart("#Q2");
+	// let selectFilter_situation = dc.selectMenu("#filter_situa");
+	// let lineChartQ11Filter = dc.lineChart("#Q11F");
 
-	resetar = function(){
-		if(previous_filter != null){
-			let filtered_state = $("[element_id="+previous_filter+"]")[0];
-			filtered_state.dispatchEvent(new Event('click'));
-		}
-		lineChartQ11.filterAll();
-		data_table.filterAll();
-		barchart.filterAll();
-		lineChart_situation.filterAll();
-		rowChartQ2.filterAll();
-		selectFilter_situation.filterAll();
-		lineChartQ11Filter.filterAll();
-		dc.renderAll();
-	};
+	// resetar = function(){
+	// 	if(previous_filter != null){
+	// 		let filtered_state = $("[element_id="+previous_filter+"]")[0];
+	// 		filtered_state.dispatchEvent(new Event('click'));
+	// 	}
+	// 	lineChartQ11.filterAll();
+	// 	data_table.filterAll();
+	// 	barchart.filterAll();
+	// 	lineChart_situation.filterAll();
+	// 	rowChartQ2.filterAll();
+	// 	selectFilter_situation.filterAll();
+	// 	lineChartQ11Filter.filterAll();
+	// 	dc.renderAll();
+	// };
 
 
 	facts = crossfilter(data);
 
 
-	//Map dim e group
+	// //Map dim e group
 	dim_states = facts.dimension(d => d.state);
 	group_states = dim_states.group();
 
 	//Q1
 	d3.json(path_brazil).then(function(data2){
-		
-		const features = topojson.feature(data2, data2.objects.estados).features;
-		features.forEach(function(d){
-			state_name_mapa.set(d.id,d.properties.nome);
-			state_population.set(d.id,d.properties.popula);
+		data2.features.forEach(function(d){
+			city_name_mapa.set(d.properties.id_rfb,d.properties.name);
+			city_population.set(d.properties.id_rfb,d.properties.populacao);
 		});
 		brazil = data2;
 		createMap();
@@ -311,7 +313,7 @@ var data = d3.csv(path_estabelecimentos).then(function(data){
 	// 		        createMap()
 	// 		});
 
-	// 		// console.log(lineChartQ11);
+
 
     // let dim_date_start_filter = facts.dimension(d=>d.date_start_month);
     // let group_date_start_filter = dim_date_start.group();
@@ -574,16 +576,16 @@ var data = d3.csv(path_estabelecimentos).then(function(data){
 	// 		        createMap()
 	// 			});
 
-  dc.renderAll();
-  function AddXAxis(chartToUpdate, displayText){
-	    chartToUpdate.svg()
-	                .append("text")
-	                .attr("class", "x-axis-label")
-	                .attr("text-anchor", "middle")
-	                .attr("x", chartToUpdate.width()/2)
-	                .attr("y", chartToUpdate.height()-1.5)
-	                .text(displayText);
-	}
-AddXAxis(rowChartQ2, "Qtd. de estabelecimentos");
-  return data;
+//   dc.renderAll();
+//   function AddXAxis(chartToUpdate, displayText){
+// 	    chartToUpdate.svg()
+// 	                .append("text")
+// 	                .attr("class", "x-axis-label")
+// 	                .attr("text-anchor", "middle")
+// 	                .attr("x", chartToUpdate.width()/2)
+// 	                .attr("y", chartToUpdate.height()-1.5)
+// 	                .text(displayText);
+// 	}
+// AddXAxis(rowChartQ2, "Qtd. de estabelecimentos");
+//   return data;
 });
