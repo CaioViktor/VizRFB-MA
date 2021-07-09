@@ -5,6 +5,7 @@ const  path_mapa = path_data+"mapa.csv";
 const  path_estabelecimentos_abertos = path_data+"inicio_estabs_formatado.csv";
 const  path_porte_situacao = path_data+"situacao_porte.csv";
 const  path_situacao = path_data+"situacao_formatado.csv";
+const  path_atividades = path_data+"situacao_formatado.csv";
 const  path_brazil = path_data+"maranhao_pop.json";
 var w = window.innerWidth;
 var h = window.innerHeight;
@@ -529,28 +530,29 @@ let data_situacao = d3.csv(path_situacao).then(function(data){
 
 
 
-    //  //Gráfico de Q2
-    //  let dim_atividades = facts.dimension(d => d.activity);
-    //  let group_atividades = dim_atividades.group();
-    //  let scaleAtividades = d3.scaleLinear().domain([0,group_atividades.top(1)[0].value]);
-    //  rowChartQ2.ordering(function(d){return -d.value});
+//Gráfico de Q2
+let data_atividades = d3.csv("")
+let dim_atividades = facts.dimension(d => d.activity);
+let group_atividades = dim_atividades.group();
+let scaleAtividades = d3.scaleLinear().domain([0,group_atividades.top(1)[0].value]);
+rowChartQ2.ordering(function(d){return -d.value});
 
 
-    //  rowChartQ2.width(window.innerWidth)
-	// 	.height(colh-100)
-	// 	.dimension(dim_atividades)
-	// 	.group(group_atividades)
-	// 	.x(scaleAtividades)
-	// 	// .label(function(d){return d.key;})
-	// 	// .margins({top: 50, right: 50, bottom: 25, left: 40})
-	// 	.elasticX(true)
-	// 	.valueAccessor(function(d) { return +d.value;})
-	// 	.othersGrouper(false)
-	// 	.colors(['#0d6efd'])
-	// 	.cap(10)
-	// 	.on("filtered", function(chart,filter){
-	// 		createMap()
-	// 	});
+rowChartQ2.width(window.innerWidth)
+.height(colh-100)
+.dimension(dim_atividades)
+.group(group_atividades)
+.x(scaleAtividades)
+// .label(function(d){return d.key;})
+// .margins({top: 50, right: 50, bottom: 25, left: 40})
+.elasticX(true)
+.valueAccessor(function(d) { return +d.value;})
+.othersGrouper(false)
+.colors(['#0d6efd'])
+.cap(10)
+.on("filtered", function(chart,filter){
+	createMap()
+});
 
 
 
