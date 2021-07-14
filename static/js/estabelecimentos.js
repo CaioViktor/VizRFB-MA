@@ -5,7 +5,7 @@ const  path_mapa = path_data+"mapa.csv";
 const  path_estabelecimentos_abertos = path_data+"inicio_estabs_formatado.csv";
 const  path_porte_situacao = path_data+"situacao_porte.csv";
 const  path_situacao = path_data+"situacao_formatado.csv";
-const  path_atividades = path_data+"situacao_formatado.csv";
+const  path_atividades = path_data+"atividades.csv";
 const  path_brazil = path_data+"maranhao_pop.json";
 var w = window.innerWidth;
 var h = window.innerHeight;
@@ -19,7 +19,7 @@ let city_population = new Map();
 let format = d3.format(".2f");
 let facts = null;
 let brazil = null;
-let dim_states = null;
+let dim_municipios = null;
 let group_municipios = null;
 let previous_filter = null;
 let previous_this_map = null;
@@ -98,7 +98,7 @@ function renderMap(data,maps){
 			    .attr("stroke-width", 0)
 	    		.attr("stroke","none"); //volta ao valor padrão
 	  		}
-	  		dim_states.filterExact(clicked_state);
+	  		dim_municipios.filterExact(clicked_state);
 	  		dc.renderAll();
 	  		previous_filter = clicked_state;
 	  		// previous_this_map = this;
@@ -179,8 +179,8 @@ function createLegend(color_scheme){
 	}
 
 	div.innerHTML = "<b>Para 100.000 habitantes</b><br/>"+labels.join('<br>')
-	const left =  (w*680)/1920;
-	const top = (h*270)/949;
+	const left =  (w*650)/1920;
+	const top = (h*330)/949;
 	$(div).css("position","absolute");
 	$(div).css("left",left+"px");
 	$(div).css("top",top+"px");
@@ -271,20 +271,7 @@ function createMap(){
 	// let selectFilter_situation = dc.selectMenu("#filter_situa");
 	// let lineChartQ11Filter = dc.lineChart("#Q11F");
 
-	// resetar = function(){
-	// 	if(previous_filter != null){
-	// 		let filtered_state = $("[element_id="+previous_filter+"]")[0];
-	// 		filtered_state.dispatchEvent(new Event('click'));
-	// 	}
-	// 	lineChartQ11.filterAll();
-	// 	data_table.filterAll();
-	// 	barchart.filterAll();
-	// 	lineChart_situation.filterAll();
-	// 	rowChartQ2.filterAll();
-	// 	selectFilter_situation.filterAll();
-	// 	lineChartQ11Filter.filterAll();
-	// 	dc.renderAll();
-	// };
+	
 
 var data_mapa = d3.csv(path_mapa).then(function(data){
 	data.forEach(function(d){
@@ -531,32 +518,54 @@ let data_situacao = d3.csv(path_situacao).then(function(data){
 
 
 //Gráfico de Q2
-let data_atividades = d3.csv("")
-let dim_atividades = facts.dimension(d => d.activity);
-let group_atividades = dim_atividades.group();
-let scaleAtividades = d3.scaleLinear().domain([0,group_atividades.top(1)[0].value]);
-rowChartQ2.ordering(function(d){return -d.value});
-
-
-rowChartQ2.width(window.innerWidth)
-.height(colh-100)
-.dimension(dim_atividades)
-.group(group_atividades)
-.x(scaleAtividades)
-// .label(function(d){return d.key;})
-// .margins({top: 50, right: 50, bottom: 25, left: 40})
-.elasticX(true)
-.valueAccessor(function(d) { return +d.value;})
-.othersGrouper(false)
-.colors(['#0d6efd'])
-.cap(10)
-.on("filtered", function(chart,filter){
-	createMap()
+let rowChartQ2 = dc.rowChart("#Q2");
+let data_atividades = d3.csv(path_atividades).then(function(data){
+	data.forEach(function(d){
+		d.QTD = +d.QTD;
+	});
+	facts = crossfilter(data);
+	let dim_atividades = facts.dimension(d => d.DESCRICAO);
+	let group_atividades = dim_atividades.group().reduceSum(d=>d.QTD);
+	let scaleAtividades = d3.scaleLinear().domain([0,group_atividades.top(1)[0].value]);
+	rowChartQ2.ordering(function(d){return -d.value});
+	
+	
+	rowChartQ2.width(window.innerWidth)
+	.height(colh-100)
+	.dimension(dim_atividades)
+	.group(group_atividades)
+	.x(scaleAtividades)
+	// .label(function(d){return d.key;})
+	// .margins({top: 50, right: 50, bottom: 25, left: 40})
+	.elasticX(true)
+	.valueAccessor(function(d) { return +d.value;})
+	.othersGrouper(false)
+	.colors(['#0d6efd'])
+	.cap(10)
+	.on("filtered", function(chart,filter){
+		createMap()
+	});
+	rowChartQ2.render()
+	return data;
+	
 });
 
 
 
-
+resetar = function(){
+if(previous_filter != null){
+	let filtered_state = $("[element_id="+previous_filter+"]")[0];
+	filtered_state.dispatchEvent(new Event('click'));
+}
+lineChartQ11.filterAll();
+// data_table.filterAll();
+barchart.filterAll();
+lineChart_situation.filterAll();
+rowChartQ2.filterAll();
+// selectFilter_situation.filterAll();
+// lineChartQ11Filter.filterAll();
+dc.renderAll();
+};
 
 	// 	//Filter situation
 	// 	let dim_situation_filter = facts.dimension(d=>d.situation);
