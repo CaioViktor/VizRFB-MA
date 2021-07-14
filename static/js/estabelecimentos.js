@@ -82,26 +82,26 @@ function renderMap(data,maps){
 	  .attr("d", path)
 	  .attr("element_id",d=>d.properties.id_rfb)
 	  .on("click",function(d){
-	  		d3.select(this) // seleciona o elemento atual
-			    .attr("stroke-width", 3)
-			    .attr("stroke","red");
-	  		let clicked_state = this.getAttribute("element_id");
-	  		if(clicked_state==previous_filter){
-	  			d3.select(this) // seleciona o elemento atual
-				    .attr("stroke-width", 0)
-	    			.attr("stroke","none"); //volta ao valor padrão
-	  			clicked_state = null;
-	  			// previous_this_map = null;
-	  		}else{
-	  			let previous_this_map = $("[element_id="+previous_filter+"]")[0];
-	  			d3.select(previous_this_map) // seleciona o elemento atual
-			    .attr("stroke-width", 0)
-	    		.attr("stroke","none"); //volta ao valor padrão
-	  		}
-	  		dim_municipios.filterExact(clicked_state);
-	  		dc.renderAll();
-	  		previous_filter = clicked_state;
-	  		// previous_this_map = this;
+	  		// d3.select(this) // seleciona o elemento atual
+			//     .attr("stroke-width", 3)
+			//     .attr("stroke","red");
+	  		// let clicked_state = this.getAttribute("element_id");
+	  		// if(clicked_state==previous_filter){
+	  		// 	d3.select(this) // seleciona o elemento atual
+			// 	    .attr("stroke-width", 0)
+	    	// 		.attr("stroke","none"); //volta ao valor padrão
+	  		// 	clicked_state = null;
+	  		// 	// previous_this_map = null;
+	  		// }else{
+	  		// 	let previous_this_map = $("[element_id="+previous_filter+"]")[0];
+	  		// 	d3.select(previous_this_map) // seleciona o elemento atual
+			//     .attr("stroke-width", 0)
+	    	// 	.attr("stroke","none"); //volta ao valor padrão
+	  		// }
+	  		// dim_municipios.filterExact(clicked_state);
+	  		// dc.renderAll();
+	  		// previous_filter = clicked_state;
+	  		// // previous_this_map = this;
 	  })
 	  .on("mouseover", function(d){
 	    d3.select(this) // seleciona o elemento atual
@@ -110,7 +110,8 @@ function renderMap(data,maps){
 	    .attr("stroke","#FFF5B1");
 	    
 	    const rect = this.getBoundingClientRect();
-	    showTooltip(maps,this.getAttribute("element_id"), rect.x, rect.y);
+		console.log(d)
+	    showTooltip(maps,this.getAttribute("element_id"), d.pageX, d.pageY);
 	  })
 	.on("mouseout", function(d){
 
@@ -167,7 +168,7 @@ function createLegend(color_scheme){
 	let div = document.createElement('div');
 	let labels = [],from, to;
 	$(div).addClass('info legend');
-	div.id = "legend";
+	div.id = "legend2";
 	const n = color_scheme.length;
 
 	for (let i = 0; i < n; i++) {
@@ -183,7 +184,7 @@ function createLegend(color_scheme){
 	const top = (h*330)/949;
 	$(div).css("position","absolute");
 	$(div).css("left",left+"px");
-	$(div).css("top",top+"px");
+	$(div).css("top",(top+h)+"px");
 	if(w < 1200 || h < 640){
 		const sw = w/1920;
 		const sh = h/949;
@@ -217,7 +218,7 @@ function showTooltip(maps,element_id, x, y) {
 	if (x + offset + wi > w) {
 		x = x - wi;
 	}
-
+	
 	if (y - hi < 0){
 		y = y + hi + offset*3;
 	}
@@ -252,24 +253,6 @@ function createMap(){
 	mapa = renderMap(brazil,maps);
 	createLegend(color_scheme);
 }
-
-// var data = d3.csv(path_estabelecimentos).then(function(data){
-// 	//root_cnpj,cnpj_est,name,date_start,situation,situationDate,state,porte,activity
-// 	let parseDate = d3.utcParse("%Y-%m-%d");
-// 	data.forEach(function(d){
-// 		d.date_month = parseDate(d.date_start.substr(0,7)+"-02");
-// 		d.date_start = parseDate(d.date_start);
-// 		d.date_month = d.situationDate.substr(0,7)+"-01";
-// 		d.situationDate = parseDate(d.situationDate);
-// 	});
-	
-	// let lineChartQ11 = dc.lineChart("#Q11");
-	// let data_table = dc.dataTable("#table_estabs");
-	// let barchart= dc.barChart("#Q3");
-	// let lineChart_situation = dc.seriesChart("#situacoes_linha");
-	// let rowChartQ2 = dc.rowChart("#Q2");
-	// let selectFilter_situation = dc.selectMenu("#filter_situa");
-	// let lineChartQ11Filter = dc.lineChart("#Q11F");
 
 	
 
@@ -370,6 +353,7 @@ var data_estabelecimentos_abertos = d3.csv(path_estabelecimentos_abertos).then(f
 
 //Q3
 let barchart= dc.barChart("#Q3");
+let selectFilter_situation = dc.selectMenu("#filter_situa");
 let data_situacao_porte = d3.csv(path_porte_situacao).then(function(data){
 	data.forEach(function(d){
 		situacoes_map = {"ACTIVE":"Ativa","DOWN":"Baixada","UNFIT":"Inapta","NULL":"Nula","SUSPENDED":"Suspensa"}
@@ -441,6 +425,25 @@ let data_situacao_porte = d3.csv(path_porte_situacao).then(function(data){
 				barchart.stack(group_porte_situacao, '' + situacoes[i], sel_stack(situacoes[i]));
 	}
 	barchart.render();
+	//Filter situation
+	let dim_situation_filter = facts.dimension(d=>d.URI_CLASSE_TIPO_SITUACAO);
+	selectFilter_situation.dimension(dim_situation_filter)
+			.group(dim_situation_filter.group().reduceSum(d=>d.QTD))
+			.multiple(true)
+			.numberVisible(5)
+			// .mouseZoomable(false)
+			.controlsUseVisibility(true)
+			.on("filtered", function(chart,filter){
+				createMap();
+				barchart.ordering(function(d){
+					let cont = 0;
+					for(i in d.value) {
+						cont+= d.value[i];
+					}
+					return -cont;
+				});
+			});
+	selectFilter_situation.render();
 	return data;
 });
 
@@ -546,6 +549,16 @@ let data_atividades = d3.csv(path_atividades).then(function(data){
 		createMap()
 	});
 	rowChartQ2.render()
+	function AddXAxis(chartToUpdate, displayText){
+	chartToUpdate.svg()
+				.append("text")
+				.attr("class", "x-axis-label")
+				.attr("text-anchor", "middle")
+				.attr("x", chartToUpdate.width()/2)
+				.attr("y", chartToUpdate.height()-1.5)
+				.text(displayText);
+	}
+	AddXAxis(rowChartQ2, "Qtd. de estabelecimentos");
 	return data;
 	
 });
@@ -553,42 +566,16 @@ let data_atividades = d3.csv(path_atividades).then(function(data){
 
 
 resetar = function(){
-if(previous_filter != null){
-	let filtered_state = $("[element_id="+previous_filter+"]")[0];
-	filtered_state.dispatchEvent(new Event('click'));
-}
-lineChartQ11.filterAll();
-// data_table.filterAll();
-barchart.filterAll();
-lineChart_situation.filterAll();
-rowChartQ2.filterAll();
-// selectFilter_situation.filterAll();
-// lineChartQ11Filter.filterAll();
-dc.renderAll();
+	if(previous_filter != null){
+		let filtered_state = $("[element_id="+previous_filter+"]")[0];
+		filtered_state.dispatchEvent(new Event('click'));
+	}
+	lineChartQ11.filterAll();
+	// data_table.filterAll();
+	barchart.filterAll();
+	lineChart_situation.filterAll();
+	rowChartQ2.filterAll();
+	// selectFilter_situation.filterAll();
+	// lineChartQ11Filter.filterAll();
+	dc.renderAll();
 };
-
-	// 	//Filter situation
-	// 	let dim_situation_filter = facts.dimension(d=>d.situation);
-	// 	selectFilter_situation.dimension(dim_situation_filter)
-	// 			.group(dim_situation_filter.group())
-	// 			.multiple(true)
-	// 			.numberVisible(5)
-	// 			// .mouseZoomable(false)
-	// 			.controlsUseVisibility(true)
-	// 			.on("filtered", function(chart,filter){
-	// 		        createMap()
-	// 			});
-
-//   dc.renderAll();
-//   function AddXAxis(chartToUpdate, displayText){
-// 	    chartToUpdate.svg()
-// 	                .append("text")
-// 	                .attr("class", "x-axis-label")
-// 	                .attr("text-anchor", "middle")
-// 	                .attr("x", chartToUpdate.width()/2)
-// 	                .attr("y", chartToUpdate.height()-1.5)
-// 	                .text(displayText);
-// 	}
-// AddXAxis(rowChartQ2, "Qtd. de estabelecimentos");
-//   return data;
-// });

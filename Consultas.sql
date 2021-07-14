@@ -18,3 +18,8 @@ SELECT atividades.descricao, SUM(qtd) as qtd FROM (
     UNION
     SELECT c.descricao,COUNT(*) as qtd FROM UFC.rfb_tem_ativ_econ_secundaria s INNER JOIN dom_cnaes c ON s.uri_atividade_economica = c.cnae GROUP BY c.descricao
 ) atividades GROUP BY atividades.descricao
+
+
+
+-- Empresas
+SELECT REPLACE(em.MUNICIPIO,' ','_') as municipio, j.NATUREZA_JURIDICA,COUNT(*) as QTD FROM UFC.empresas em INNER JOIN dom_natureza_juridica j ON j.codigo = em.COD_NAT_JURIDICA AND em.UF = 'MA' GROUP BY em.MUNICIPIO, j.NATUREZA_JURIDICA

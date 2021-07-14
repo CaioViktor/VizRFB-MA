@@ -15,7 +15,7 @@
   stroke: #eee;
   stroke-linejoin: round;
 }
-#tooltip {
+#tooltip,#tooltip_emp {
   position: absolute;
   width: auto;
   height: auto;
@@ -123,8 +123,11 @@
 	z-index: 80;
 	height: 40px;
 	width: 40px;
-	position: absolute;
+	/* position: absolute;
 	top: 0%;
+	right: 0%; */
+	position: absolute;
+	top: 105%;
 	right: 0%;
 	text-align: center;
 	margin-right: 10px;
@@ -152,9 +155,12 @@
 	border: 1px solid #606060;
 	width: auto;
 	height: auto;
+	/* position: absolute;
+	right: 0%;
+	top: 0%; */
 	position: absolute;
 	right: 0%;
-	top: 0%;
+	top: 105%;
 	margin-right: 20px;
 	padding: 5px 30px 5px 5px;
 	background-color: white;
@@ -168,4 +174,12 @@
 
 .dc-chart g.row text {
 	fill: black;
+}
+#separador{
+	color: white;
+	background-color: black;
+	flex-direction: row;
+	justify-content: center;
+	align-items: center;
+	margin-bottom: 10px;
 }
