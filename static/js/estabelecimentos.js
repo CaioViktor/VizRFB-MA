@@ -298,7 +298,7 @@ var data_mapa = d3.csv(path_mapa).then(function(data){
 
 
 	
-Q11
+//Q11
 let lineChartQ11 = dc.lineChart("#Q11");
 var data_estabelecimentos_abertos = d3.csv(path_estabelecimentos_abertos).then(function(data){
 	data.forEach(tratar_dados);
@@ -405,7 +405,7 @@ let data_situacao_porte = d3.csv(path_porte_situacao).then(function(data){
 					return d.value[i];
 				};
 			}
-	console.log(group_porte_situacao.all())
+	// console.log(group_porte_situacao.all())
 		
 	
 	barchart.width(colw)
@@ -457,7 +457,7 @@ let data_situacao = d3.csv(path_situacao).then(function(data){
 	data.forEach(tratar_dados);
 	let facts = crossfilter(data);//TODO: No futuro interligar gráficos
 	let dim_situation = facts.dimension(d=>[d.URI_CLASSE_TIPO_SITUACAO,d.date_month_str]);
-	let _group_situation = dim_situation.group();
+	let _group_situation = dim_situation.group().reduceSum(d=>d.QTD);
 	
 	var group_situation = {
 		all:function () {
