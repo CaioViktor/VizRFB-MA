@@ -28,7 +28,7 @@
   pointer-events: none;
 }
 
-#tooltip.hidden {
+#tooltip.hidden,#tooltip_emp.hidden {
   display: none;
 }
 #rede{
@@ -127,7 +127,7 @@
 	top: 0%;
 	right: 0%; */
 	position: absolute;
-	top: 105%;
+	top: 10%;
 	right: 0%;
 	text-align: center;
 	margin-right: 10px;
@@ -160,7 +160,7 @@
 	top: 0%; */
 	position: absolute;
 	right: 0%;
-	top: 105%;
+	top: 10%;
 	margin-right: 20px;
 	padding: 5px 30px 5px 5px;
 	background-color: white;
@@ -182,4 +182,18 @@
 	justify-content: center;
 	align-items: center;
 	margin-bottom: 10px;
+}
+.dashboard{
+	min-height: 100%;
+	min-width: 100%;
+	height: 100%;
+	width: 100%;
+	position: absolute;
+	left: 0;
+}
+#dashboard1{
+	top: 0%;
+}
+#dashboard2{
+	top: 100%;
 }
