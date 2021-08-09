@@ -1,3 +1,3 @@
 # VizRFB - MA
 
-[**Gitpages**](https://caioviktor.github.io/VizRFB/)
+[**Gitpages**](https://caioviktor.github.io/VizRFB-MA/)
